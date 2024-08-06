@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { FC, ReactNode } from 'react'
 import FriendRequestSidebarOptions from '@/components/FriendRequestSidebarOptions'
-import { fetchRedis } from '@/helpers/redis'
+import { fetch_api } from '@/helpers/api_nilchat'
 import { getFriendsByUserId } from '@/helpers/get-friends-by-user-id'
 import SidebarChatList from '@/components/SidebarChatList'
 import MobileChatLayout from '@/components/MobileChatLayout'
@@ -19,7 +19,7 @@ interface LayoutProps {
 
 // Done after the video and optional: add page metadata
 export const metadata = {
-  title: 'FriendZone | Dashboard',
+  title: 'NilChat | Dashboard',
   description: 'Your dashboard',
 }
 
@@ -33,36 +33,37 @@ const sidebarOptions: SidebarOption[] = [
 ]
 
 const Layout = async ({ children }: LayoutProps) => {
+
   const session = await getServerSession(authOptions)
+  console.log(session);
   if (!session) notFound()
 
-  const friends = await getFriendsByUserId(session.user.id)
-  console.log('friends', friends)
-
-  const unseenRequestCount = (
-    (await fetchRedis(
-      'smembers',
-      `user:${session.user.id}:incoming_friend_requests`
-    )) as User[]
-  ).length
+  const friends = await fetch_api('get', `accounts/ayoub@gmail.com/chats`);
+  console.log(friends.total);
+  // const unseenRequestCount = (
+  //   (await fetch_api(
+  //     'smembers',
+  //     `user:${session.user.id}:incoming_friend_requests`
+  //   )) as User[]
+  // ).length
 
   return (
     <div className='w-full flex h-screen'>
-      <div className='md:hidden'>
+      {/* <div className='md:hidden'>
         <MobileChatLayout
           friends={friends}
           session={session}
           sidebarOptions={sidebarOptions}
           unseenRequestCount={unseenRequestCount}
         />
-      </div>
+      </div> */}
 
       <div className='hidden md:flex h-full w-full max-w-xs grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6'>
         <Link href='/dashboard' className='flex h-16 shrink-0 items-center'>
           <Icons.Logo className='h-8 w-auto text-indigo-600' />
         </Link>
 
-        {friends.length > 0 ? (
+        {friends.total > 0 ? (
           <div className='text-xs font-semibold leading-6 text-gray-400'>
             Your chats
           </div>
@@ -71,7 +72,7 @@ const Layout = async ({ children }: LayoutProps) => {
         <nav className='flex flex-1 flex-col'>
           <ul role='list' className='flex flex-1 flex-col gap-y-7'>
             <li>
-              <SidebarChatList sessionId={session.user.id} friends={friends} />
+              <SidebarChatList friends={friends} />
             </li>
             <li>
               <div className='text-xs font-semibold leading-6 text-gray-400'>
@@ -97,10 +98,10 @@ const Layout = async ({ children }: LayoutProps) => {
                 })}
 
                 <li>
-                  <FriendRequestSidebarOptions
+                  {/* <FriendRequestSidebarOptions
                     sessionId={session.user.id}
                     initialUnseenRequestCount={unseenRequestCount}
-                  />
+                  /> */}
                 </li>
               </ul>
             </li>

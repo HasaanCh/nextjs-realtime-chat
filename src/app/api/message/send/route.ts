@@ -1,4 +1,4 @@
-import { fetchRedis } from '@/helpers/redis'
+import { fetch_api } from '@/helpers/api_nilchat'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { pusherServer } from '@/lib/pusher'
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 
     const friendId = session.user.id === userId1 ? userId2 : userId1
 
-    const friendList = (await fetchRedis(
+    const friendList = (await fetch_api(
       'smembers',
       `user:${session.user.id}:friends`
     )) as string[]
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
       return new Response('Unauthorized', { status: 401 })
     }
 
-    const rawSender = (await fetchRedis(
+    const rawSender = (await fetch_api(
       'get',
       `user:${session.user.id}`
     )) as string

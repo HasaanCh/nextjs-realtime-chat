@@ -1,5 +1,5 @@
 import { getFriendsByUserId } from '@/helpers/get-friends-by-user-id'
-import { fetchRedis } from '@/helpers/redis'
+import { fetch_api } from '@/helpers/api_nilchat'
 import { authOptions } from '@/lib/auth'
 import { chatHrefConstructor } from '@/lib/utils'
 import { ChevronRight } from 'lucide-react'
@@ -12,30 +12,34 @@ const page = async ({}) => {
   const session = await getServerSession(authOptions)
   if (!session) notFound()
 
-  const friends = await getFriendsByUserId(session.user.id)
+  const blockchainUser = await fetch_api('get', `accounts/${session.user.email}`);
+  console.log(blockchainUser);
 
-  const friendsWithLastMessage = await Promise.all(
-    friends.map(async (friend) => {
-      const [lastMessageRaw] = (await fetchRedis(
-        'zrange',
-        `chat:${chatHrefConstructor(session.user.id, friend.id)}:messages`,
-        -1,
-        -1
-      )) as string[]
+  const friends = await fetch_api('get', `accounts/ayoub@gmail.com/chats`);
+  // console.log(friends);
+  // const friendsWithLastMessage = await Promise.all(
+  //   friends.map(async (friend) => {
+  //     const [lastMessageRaw] = (await fetch_api(
+  //       'zrange',
+  //       `chat:${chatHrefConstructor(session.user.id, friend.id)}:messages`,
+  //       -1,
+  //       -1
+  //     )) as string[]
 
-      const lastMessage = JSON.parse(lastMessageRaw) as Message
+  //     const lastMessage = JSON.parse(lastMessageRaw) as Message
 
-      return {
-        ...friend,
-        lastMessage,
-      }
-    })
-  )
+  //     return {
+  //       ...friend,
+  //       lastMessage,
+  //     }
+  //   })
+  // )
 
   return (
     <div className='container py-12'>
       <h1 className='font-bold text-5xl mb-8'>Recent chats</h1>
-      {friendsWithLastMessage.length === 0 ? (
+
+      {/* {friendsWithLastMessage.length === 0 ? (
         <p className='text-sm text-zinc-500'>Nothing to show here...</p>
       ) : (
         friendsWithLastMessage.map((friend) => (
@@ -78,7 +82,7 @@ const page = async ({}) => {
             </Link>
           </div>
         ))
-      )}
+      )} */}
     </div>
   )
 }

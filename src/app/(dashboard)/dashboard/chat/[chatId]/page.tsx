@@ -1,6 +1,6 @@
 import ChatInput from '@/components/ChatInput'
 import Messages from '@/components/Messages'
-import { fetchRedis } from '@/helpers/redis'
+import { fetch_api } from '@/helpers/api_nilchat'
 import { authOptions } from '@/lib/auth'
 import { messageArrayValidator } from '@/lib/validations/message'
 import { getServerSession } from 'next-auth'
@@ -19,13 +19,13 @@ export async function generateMetadata({
   const { user } = session
 
   const chatPartnerId = user.id === userId1 ? userId2 : userId1
-  const chatPartnerRaw = (await fetchRedis(
+  const chatPartnerRaw = (await fetch_api(
     'get',
     `user:${chatPartnerId}`
   )) as string
   const chatPartner = JSON.parse(chatPartnerRaw) as User
 
-  return { title: `FriendZone | ${chatPartner.name} chat` }
+  return { title: `NilChat | ${chatPartner.name} chat` }
 }
 
 interface PageProps {
@@ -36,7 +36,7 @@ interface PageProps {
 
 async function getChatMessages(chatId: string) {
   try {
-    const results: string[] = await fetchRedis(
+    const results: string[] = await fetch_api(
       'zrange',
       `chat:${chatId}:messages`,
       0,
@@ -71,7 +71,7 @@ const page = async ({ params }: PageProps) => {
   const chatPartnerId = user.id === userId1 ? userId2 : userId1
   // new
 
-  const chatPartnerRaw = (await fetchRedis(
+  const chatPartnerRaw = (await fetch_api(
     'get',
     `user:${chatPartnerId}`
   )) as string

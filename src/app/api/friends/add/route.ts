@@ -1,4 +1,4 @@
-import { fetchRedis } from '@/helpers/redis'
+import { fetch_api } from '@/helpers/api_nilchat'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { pusherServer } from '@/lib/pusher'
@@ -13,7 +13,7 @@ export async function POST(req: Request) {
 
     const { email: emailToAdd } = addFriendValidator.parse(body.email)
 
-    const idToAdd = (await fetchRedis(
+    const idToAdd = (await fetch_api(
       'get',
       `user:email:${emailToAdd}`
     )) as string
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     }
 
     // check if user is already added
-    const isAlreadyAdded = (await fetchRedis(
+    const isAlreadyAdded = (await fetch_api(
       'sismember',
       `user:${idToAdd}:incoming_friend_requests`,
       session.user.id
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     }
 
     // check if user is already added
-    const isAlreadyFriends = (await fetchRedis(
+    const isAlreadyFriends = (await fetch_api(
       'sismember',
       `user:${session.user.id}:friends`,
       idToAdd
