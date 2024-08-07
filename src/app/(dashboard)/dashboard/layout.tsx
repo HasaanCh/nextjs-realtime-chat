@@ -35,11 +35,9 @@ const sidebarOptions: SidebarOption[] = [
 const Layout = async ({ children }: LayoutProps) => {
 
   const session = await getServerSession(authOptions)
-  console.log(session);
   if (!session) notFound()
 
-  const friends = await fetch_api('get', `accounts/ayoub@gmail.com/chats`);
-  console.log(friends.total);
+  const friends = await fetch_api('get',[] ,`accounts/${session.user.email}/chats`);
   // const unseenRequestCount = (
   //   (await fetch_api(
   //     'smembers',
@@ -72,7 +70,7 @@ const Layout = async ({ children }: LayoutProps) => {
         <nav className='flex flex-1 flex-col'>
           <ul role='list' className='flex flex-1 flex-col gap-y-7'>
             <li>
-              <SidebarChatList friends={friends} />
+              <SidebarChatList friends={friends.items} />
             </li>
             <li>
               <div className='text-xs font-semibold leading-6 text-gray-400'>

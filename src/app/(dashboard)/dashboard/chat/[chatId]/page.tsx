@@ -15,47 +15,47 @@ export async function generateMetadata({
 }) {
   const session = await getServerSession(authOptions)
   if (!session) notFound()
-  const [userId1, userId2] = params.chatId.split('--')
   const { user } = session
 
-  const chatPartnerId = user.id === userId1 ? userId2 : userId1
-  const chatPartnerRaw = (await fetch_api(
-    'get',
-    `user:${chatPartnerId}`
-  )) as string
-  const chatPartner = JSON.parse(chatPartnerRaw) as User
+  const chatPartnerRaw = await fetch_api(
+    'get', [],
+    'accounts/ayoub@gmail.com/chats',params.chatId)
 
-  return { title: `NilChat | ${chatPartner.name} chat` }
+  return {
+    title: `NilChat | ${chatPartnerRaw.chat_name}`,
+    chatPartnerRaw,
+  }
 }
 
 interface PageProps {
   params: {
     chatId: string
-  }
+  },
+  chatPartnerRaw: any
 }
 
-async function getChatMessages(chatId: string) {
-  try {
-    const results: string[] = await fetch_api(
-      'zrange',
-      `chat:${chatId}:messages`,
-      0,
-      -1
-    )
+// async function getChatMessages(chatId: string) {
+//   try {
+//     const results: string[] = await fetch_api(
+//       'zrange',
+//       `chat:${chatId}:messages`,
+//       0,
+//       -1
+//     )
 
-    const dbMessages = results.map((message) => JSON.parse(message) as Message)
+//     const dbMessages = results.map((message) => JSON.parse(message) as Message)
 
-    const reversedDbMessages = dbMessages.reverse()
+//     const reversedDbMessages = dbMessages.reverse()
 
-    const messages = messageArrayValidator.parse(reversedDbMessages)
+//     const messages = messageArrayValidator.parse(reversedDbMessages)
 
-    return messages
-  } catch (error) {
-    notFound()
-  }
-}
+//     return messages
+//   } catch (error) {
+//     notFound()
+//   }
+// }
 
-const page = async ({ params }: PageProps) => {
+const page = async ({ params, chatPartnerRaw }: PageProps) => {
   const { chatId } = params
   const session = await getServerSession(authOptions)
   if (!session) notFound()
@@ -67,16 +67,18 @@ const page = async ({ params }: PageProps) => {
   if (user.id !== userId1 && user.id !== userId2) {
     notFound()
   }
-
+  console.log("================================");
+  console.log(chatPartnerRaw);
+  console.log("================================");
   const chatPartnerId = user.id === userId1 ? userId2 : userId1
   // new
 
-  const chatPartnerRaw = (await fetch_api(
-    'get',
-    `user:${chatPartnerId}`
-  )) as string
-  const chatPartner = JSON.parse(chatPartnerRaw) as User
-  const initialMessages = await getChatMessages(chatId)
+  // const chatPartnerRaw = (await fetch_api(
+  //   'get',
+  //   `user:${chatPartnerId}`
+  // )) as string
+  // const chatPartnerRaw = JSON.parse(chatPartnerRaw) as User
+  // const initialMessages = await getChatMessages(chatId)
 
   return (
     <div className='flex-1 justify-between flex flex-col h-full max-h-[calc(100vh-6rem)]'>
@@ -84,36 +86,36 @@ const page = async ({ params }: PageProps) => {
         <div className='relative flex items-center space-x-4'>
           <div className='relative'>
             <div className='relative w-8 sm:w-12 h-8 sm:h-12'>
-              <Image
+              {/* <Image
                 fill
                 referrerPolicy='no-referrer'
-                src={chatPartner.image}
-                alt={`${chatPartner.name} profile picture`}
+                src={chatPartnerRaw.image}
+                alt={`${chatPartnerRaw.name} profile picture`}
                 className='rounded-full'
-              />
+              /> */}
             </div>
           </div>
 
           <div className='flex flex-col leading-tight'>
             <div className='text-xl flex items-center'>
               <span className='text-gray-700 mr-3 font-semibold'>
-                {chatPartner.name}
+                {/* {chatPartnerRaw.name} */}
               </span>
             </div>
 
-            <span className='text-sm text-gray-600'>{chatPartner.email}</span>
+            {/* <span className='text-sm text-gray-600'>{chatPartnerRaw.email}</span> */}
           </div>
         </div>
       </div>
 
-      <Messages
+      {/* <Messages
         chatId={chatId}
-        chatPartner={chatPartner}
+        chatPartnerRaw={chatPartnerRaw}
         sessionImg={session.user.image}
         sessionId={session.user.id}
         initialMessages={initialMessages}
       />
-      <ChatInput chatId={chatId} chatPartner={chatPartner} />
+      <ChatInput chatId={chatId} chatPartnerRaw={chatPartnerRaw} /> */}
     </div>
   )
 }

@@ -1,12 +1,7 @@
 import { NextAuthOptions } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import { fetch_api } from '@/helpers/api_nilchat'
-
-
-interface CustomUser extends User {
-  blockchainUser: any;
-  id: string;
-}
+import { object } from 'zod'
 
 
 function getGoogleCredentials() {
@@ -50,10 +45,17 @@ export const authOptions: NextAuthOptions = {
         session.user.name = token.name
         session.user.email = token.email
       }
-      // console.log("============================");
-      // console.log(session);
-      // console.log("============================");
       return session
+    },
+    async signIn({ user }) {
+      // Send email to custom API
+      console.log(user.email);
+      const nilchat_user = await fetch_api("post",[user.email??"",user.name??""], "accounts");
+      console.log("================================")
+      console.log(nilchat_user);
+      console.log("================================")
+
+      return true;
     },
     redirect() {
       return '/dashboard'

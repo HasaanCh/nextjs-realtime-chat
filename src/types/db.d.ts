@@ -1,4 +1,7 @@
 interface User {
+  messages: any
+  chat_id: string | undefined
+  chat_name: ReactNode
   name: string
   email: string
   image: string
